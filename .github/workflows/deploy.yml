@@ -1,0 +1,21 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Droplet
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: root
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          script: |
+            cd /opt/paperclip
+            git pull origin master
+            docker compose -f docker/docker-compose.quickstart.yml build --pull
+            docker compose -f docker/docker-compose.quickstart.yml up -d
